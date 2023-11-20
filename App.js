@@ -1,21 +1,23 @@
 import * as ImagePicker from "expo-image-picker";
 import { useState } from "react";
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Image} from 'react-native';
+import { StyleSheet, View} from 'react-native';
 
 import Button from './components/Button';
 import ImageViewer from './components/ImageViewer';
 import CircleButton from './components/CircleButton';
 import IconButton from './components/IconButton'
-
-
+import EmojiPicker from './components/EmojiPicker'
+import EmojiList from "./components/EmojiList";
+import EmojiSticker from "./components/EmojiSticker";
 
 const PlaceholderImage = require("./assets/images/background-image.png")
 
 export default function App() {
   const [selectedImage, setSelectedImage] = useState(null);
   const [showAppOptions, setShowAppOptions] = useState(false);
-
+  const [isModalVisible, setIsModalVisible] = useState(false)
+  const [pickedEmoji, setPickedEmoji] = useState(null);
 
   const pickImageAsync = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -36,13 +38,16 @@ export default function App() {
   }
 
   const onAddSticker = () => {
-    
+    setIsModalVisible(true);
+  }
+
+  const onModalClose = () => {
+    setIsModalVisible(false)
   }
 
   const onSaveImageAsync = async () => {
 
   }
-
 
   return (
     <View style={styles.container}>
@@ -51,6 +56,7 @@ export default function App() {
           selectedImage={selectedImage}
           placeholderImageSource={PlaceholderImage}
         />
+        {pickedEmoji !== null ? <EmojiSticker imageSize={40} stickerSource={pickedEmoji} /> : null }
       </View>
 
       {showAppOptions ? (
@@ -64,11 +70,14 @@ export default function App() {
         
       ) : (
         <View style={styles.footerContainer}>
-        <Button label={"Choose a Photo"} theme={"primary"} onPress={pickImageAsync}/>
+        <Button label={"Select a Photo"} theme={"primary"} onPress={pickImageAsync}/>
         <Button label={"Use this Photo"} onPress={() => setShowAppOptions(true)}/>
       </View>
       )}
       
+      <EmojiPicker isVisible={isModalVisible} onClose={onModalClose}>
+          <EmojiList onSelect={setPickedEmoji} onCloseModal={onModalClose} />
+      </EmojiPicker>
       <StatusBar style="auto" />
     </View>
   );
@@ -78,9 +87,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#25292e',
-    alignItems: 'center',
+    alignItems: 'center`',
   },
   imageContainer: {
+    alignItems:"center",
     flex: 1,
     paddingTop: 58,
   },
@@ -91,9 +101,10 @@ const styles = StyleSheet.create({
   optionsContainer: {
     position: "absolute",
     bottom: 80,
+    left:70
   },
   optionsRow: {
     alignItems: "center",
-    flexDirection:"row",
+    flexDirection: "row",
   },
 });
